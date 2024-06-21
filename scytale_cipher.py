@@ -25,10 +25,45 @@ Source: https://en.wikipedia.org/wiki/Scytale
 
 from math import ceil
 
+import click
 from icecream import ic
 
+VERSION = "2.0"
 
-def encrypt_str(s: str, rod: int) -> str:
+@click.command(help="Encrypt/decrypt [PLAINTEXT] using a scytale cipher.", epilog="--rod is defined as the diameter of the rod, but practically speaking, it is the number of characters that can fit around the diameter of the rod. For this reason, the message length must be evenly divisible by --rod. If not, the message is padded with spaces.\n\nIf a value for --rod is non-default, that same value must be used for both encryption and decryption.")
+@click.argument("plaintext", required=False)
+@click.option("-r", "--rod", type=int, default=5, show_default=True, help="Diameter of the rod")
+@click.version_option(version=VERSION)
+def cli(plaintext: str, rod: int) -> None:
+    """
+    This is the entry point for the CLI.
+
+    Parameters
+    ----------
+    plaintext : str -- plaintext message to encrypt.
+    rod : int -- diameter of the rod
+    """
+    print()
+    try:
+        ic(len(plaintext))
+    except TypeError:
+        pass
+    ic(plaintext)
+    print()
+
+    if plaintext:
+        # The message to encrypt is required to be evenly divisible by "rod".
+        # If it's not, then pad the message accordingly.
+        p: int = len(plaintext) % rod
+        if p != 0:
+            padding_length: int = rod - p
+            plaintext += " " * padding_length
+            encrypt_str(plaintext, rod)
+    else:
+        decrypt_str(rod)
+
+
+def encrypt_str(msg: str, rod: int) -> None:
     """
     Encrypt the plain text string "s". To do this, the "size of the "rod" must be known.
 
@@ -53,19 +88,45 @@ def encrypt_str(s: str, rod: int) -> str:
     # Create an empty 2-D list.
     outer_list: list[list[str]] = [[] for n in range(rod)]
 
-    # Characters from "s" are taken one at a time in sequence and added one at a time to each of each sublist (there are "rod" sublists). The first iteration adds a character to index 0 in each sublist. The next iteration adds a character to index 1 in each sublist...and so on.
+    # Characters from "msg" are taken one at a time in sequence and added one at a time to each of each sublists (there are "rod" sublists). The first iteration adds a character to index 0 in each sublist. The next iteration adds a character to index 1 in each sublist...and so on.
     char_num: int = 0
-    while char_num < len(s):
+    while char_num < len(msg):
         for row in range(rod):
-            outer_list[row].append(s[char_num])
+            outer_list[row].append(msg[char_num])
             char_num += 1
-            if char_num >= len(s):
+            if char_num >= len(msg):
                 break
 
-    # Flatten the list of lists so we can create a string with join().
-    flat: list[str] = [character for sublist in outer_list for character in sublist]
+    encrypted_msg_list: list[str] = flatten_list(outer_list)
 
-    return "".join(flat)
+    encrypted_msg: str = "".join(encrypted_msg_list)
+    print(f'Encrypted message:\n"{encrypted_msg}"', sep="")
+
+    # Save the encrypted message to encrypted.txt.
+    with open("encrypted.txt", "w", encoding="utf-8") as f:
+        f.write(encrypted_msg)
+
+
+def flatten_list(target: list[list[str]]) -> list:
+    """
+    Flattens the two-dimensional list (outer_list).
+
+    Parameters
+    ----------
+    target : list -- a two-dimensional list
+
+    Returns
+    -------
+    list -- flattened list
+
+    Example
+    [['T', 'o', 'l', 'h', 'm', 'g'], ['h', 'a', 'a', ' ', 'i', 'h'], ['e', 't', 'u', 'a', 'd', 't'], [' ', 's', 'n', 't', 'n', '.'], ['b', ' ', 'c', ' ', 'i', ' ']]
+
+    -->
+
+    ['T', 'o', 'l', 'h', 'm', 'g', 'h', 'a', 'a', ' ', 'i', 'h', 'e', 't', 'u', 'a', 'd', 't', ' ', 's', 'n', 't', 'n', '.', 'b', ' ', 'c', ' ', 'i', ' ']
+    """
+    return sum((flatten_list(sub) if isinstance(sub, list) else [sub] for sub in target), [])
 
 
 def create_2d_list(s: str, num_cols: int) -> list[list[str]]:
@@ -83,7 +144,7 @@ def create_2d_list(s: str, num_cols: int) -> list[list[str]]:
 
     Example
     --------
-    s --> 'IRYYMATBHEMVAE HEDL URLP '
+    s = 'IRYYMATBHEMVAE HEDL URLP ' -->
 
         ['I', 'R', 'Y', 'Y', 'M']
         ['A', 'T', 'B', 'H', 'E']
@@ -102,9 +163,9 @@ def create_2d_list(s: str, num_cols: int) -> list[list[str]]:
     return outer_list
 
 
-def decrypt_str(s: str, rod: int) -> str:
+def decrypt_str(rod: int) -> None:
     """
-    Given a string "s" that was encrypted by encrypt_str(), decrypt the message.
+    Given a string "s" that was encrypted by encrypt_str(), decrypt the message. Rod length used in decryption must be the same as rod length used for encryption.
 
     Parameters
     ----------
@@ -120,9 +181,15 @@ def decrypt_str(s: str, rod: int) -> str:
     'IRYYMATBHEMVAE HEDL URLP '  -->  'IAMHURTVERYBADLYHELPME   '
     """
 
+    with open("encrypted.txt", 'r', encoding="utf-8") as f:
+        all_lines: list[str] = f.readlines()
+
+    lines: list[str] = [s.strip("\n") for s in all_lines]
+    message: str = "".join(lines)
+
     # "rod" is the number of rows. Now, determine number of cols:
-    num_cols: int = ceil(len(s) / rod)
-    outer_list: list[list[str]] = create_2d_list(s, num_cols)
+    num_cols: int = ceil(len(message) / rod)
+    outer_list: list[list[str]] = create_2d_list(message, num_cols)
 
     col: int = 0
     msg: str = ""
@@ -131,66 +198,12 @@ def decrypt_str(s: str, rod: int) -> str:
             msg += outer_list[row][col]
         col += 1
 
-    return msg
+    print(f'Decrypted message:\n"{msg.strip()}"', sep="")
 
-
-def main(s: str, rod: int, encrypt: bool) -> str:
-    """
-    Takes a string, "s", and either encrypts it or decrypts it. The length of "s" MUST be evenly divisible by "rod".
-
-    Parameters
-    ----------
-    s : str -- encrypted or decrypted string
-    encrypt : bool, optional -- encrypted "s" if True; default True
-
-    Returns
-    -------
-    str : either the encrypted or decrypted string
-    """
-
-    # The message to encrypt is required to be evenly divisible by "rod".
-    if len(s) % rod != 0:
-        print(f"Message length ({len(s)}) must be evenly divisible by rod length ({rod}).\nPad message with spaces as necessary.")
-        for i in range(5):
-            if (len(s) + i) % 5 == 0:
-                sp: str = 'space' if i == 1 else 'spaces'
-                print(f'Add {i} {sp} to message.')
-        exit()
-
-    if encrypt:
-        m: str = encrypt_str(s, rod)
-    else:
-        m: str = decrypt_str(s, rod)
-
-    return m
+    with open("decrypted.txt", 'w', encoding="utf-8") as f:
+        f.write(msg.strip())
 
 
 if __name__ == "__main__":
-    # Proof of concept!
-    plaintext = "In the café, the bánh mì sandwich is a popular choice among the regulars. The flaky baguette, stuffed with savory grilled pork, pickled daikon and carrots, fresh cilantro, and a dollop of sriracha mayo, is the perfect lunchtime indulgence. As I sipped my matcha latte, I noticed the barista's shirt had a cute ねこ (neko, or cat) graphic on it. It reminded me of the time I visited Tokyo and saw the famous 東京タワー (Tokyo Tower) at night, aglow with colorful lights. The world is full of unique and beautiful symbols, and Unicode makes it possible to express them all in one cohesive language. "
-
-    encrypted = "IRYYATBHMVAEHEDLURLP"
-    plaintext = "IAMHURTVERYBADLYHELP"
-
-    encrypted = "IRYYMATBHEMVAE HEDL URLP "
-    # decrypted = "IAMHURTVERYBADLYHELPME   "
-
-    rod = 5
-
-    # msg: str = main(decrypted, rod, True)
-    # ic(decrypted)
-    # ic(msg)
-
-    # msg: str = main(encrypted, rod, False)
-    # ic(encrypted)
-    # ic(msg)
-
-    msg: str = main(plaintext, rod, True)
-    print('\n', '=' * 40)
-    print(plaintext)
-    print('=' * 40)
-    print(msg)
-
-    print('=' * 40)
-    msg: str = main(msg, rod, False)
-    print(msg)
+    print()
+    cli()

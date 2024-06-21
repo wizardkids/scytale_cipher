@@ -2,8 +2,11 @@
 
 This Python script implements the scytale cipher, which is a transposition cipher that uses a cylindrical tool. A strip of parchment is wrapped around the cylinder, and the message is written along the length of the cylinder. When unwrapped, the letters appear jumbled, but when wrapped around a cylinder of the same diameter, the message can be read.
 
-The Scytale cipher is similar to a railfence cipher, but it uses a rail instead of a zigzag. A railfence cipher arranges the plaintext in a zigzag pattern across multiple "rails" (rows) and then reads off each row in sequence to create the ciphertext.
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Skytale.png/800px-Skytale.png" width="320" height="183">
 
+Source: <a href="https://en.wikipedia.org/wiki/Scytale">https://en.wikipedia.org/wiki/Scytale</a>
+
+The Scytale cipher is similar to a railfence cipher, but it uses a rail instead of a zigzag. A railfence cipher arranges the plaintext in a zigzag pattern across multiple "rails" (rows) and then reads off each row in sequence to create the ciphertext.
 
 ## Description
 
