@@ -170,20 +170,20 @@ if __name__ == "__main__":
     plaintext = "In the café, the bánh mì sandwich is a popular choice among the regulars. The flaky baguette, stuffed with savory grilled pork, pickled daikon and carrots, fresh cilantro, and a dollop of sriracha mayo, is the perfect lunchtime indulgence. As I sipped my matcha latte, I noticed the barista's shirt had a cute ねこ (neko, or cat) graphic on it. It reminded me of the time I visited Tokyo and saw the famous 東京タワー (Tokyo Tower) at night, aglow with colorful lights. The world is full of unique and beautiful symbols, and Unicode makes it possible to express them all in one cohesive language. "
 
     encrypted = "IRYYATBHMVAEHEDLURLP"
-    decrypted = "IAMHURTVERYBADLYHELP"
+    plaintext = "IAMHURTVERYBADLYHELP"
 
     encrypted = "IRYYMATBHEMVAE HEDL URLP "
-    decrypted = "IAMHURTVERYBADLYHELPME   "
+    # decrypted = "IAMHURTVERYBADLYHELPME   "
 
     rod = 5
 
-    msg: str = main(decrypted, rod, True)
-    ic(decrypted)
-    ic(msg)
+    # msg: str = main(decrypted, rod, True)
+    # ic(decrypted)
+    # ic(msg)
 
-    msg: str = main(encrypted, rod, False)
-    ic(encrypted)
-    ic(msg)
+    # msg: str = main(encrypted, rod, False)
+    # ic(encrypted)
+    # ic(msg)
 
     msg: str = main(plaintext, rod, True)
     print('\n', '=' * 40)
