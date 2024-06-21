@@ -6,45 +6,64 @@ This Python script implements the scytale cipher, which is a transposition ciphe
 
 Source: <a href="https://en.wikipedia.org/wiki/Scytale">https://en.wikipedia.org/wiki/Scytale</a>
 
-The Scytale cipher is similar to a railfence cipher, but it uses a rail instead of a zigzag. A railfence cipher arranges the plaintext in a zigzag pattern across multiple "rails" (rows) and then reads off each row in sequence to create the ciphertext.
+The best way to envision this cipher in operation is to take a strip of paper and wrap the strip around a broomstick. Write your message on the strip, writing down the length of the broomstick. When you remove the strip of paper, the message will appear "jumbled" (encrypted). When the recipient wraps the strip on a similar broomstick, the original  message can be read.
 
-## Description
+The Scytale cipher is similar to a railfence cipher, but the text wraps around a single rail (rod) instead of a zigzagging. A railfence cipher arranges the plaintext in a zigzag pattern across multiple "rails" (rows) and then reads off each row in sequence to create the ciphertext.
 
-The Scytale cipher is an ancient form of encryption that uses a cylindrical rod (or "scytale") to encrypt and decrypt messages. The plaintext message is written diagonally across the surface of the rod, and then the ciphertext is read off row by row.
+## Functions
 
-This script provides two main functions:
+This script provides two main functions, accessible through a command-line interface (CLI):
 
-- **encrypt_str(plaintext, rod_length)**: Encrypts the given plaintext using the Scytale cipher with the specified rod length.
-- **decrypt_str(ciphertext, rod_length)**: Decrypts the given ciphertext using the Scytale cipher with the specified rod length.
+- **encrypt_str(plaintext, rod_length)**: Encrypts the provided plaintext using the Scytale cipher with the specified rod length.
+- **decrypt_str(rod_length)**: Decrypts the given ciphertext using the Scytale cipher with the specified rod length.
 
 ## Usage
 
-`python scytale_cipher.py`
+**Encryption:**
+`python scytale_cipher.py -r 8 "plaintext message to encrypt"`
 
-**_As of this version, the message to be encrypted/decrypted is hardcoded into the script. The next version will incorporate a command-line interface to accommodate provision of a message to encrypt._**
+**Decryption:**
+`python scytale_cipher.py -r 8`
+
+Providing a rod length is optional. If a message is provided, it will be encrypted and the encrypted text will be saved in "encrypted.txt". If there is no message on the command line, then the text in "encrypted.txt" will be decrypted and the decrypted text will be saved in "decrypted.txt".
+
+## Rod length: key to the cipher
+Rod length must be the same for both encryption and decryption. Rod length defaults to 5 but can be any integer value. However, a rod length equal to or greater than message length will not encrypt the message. If rod length equals message length, then the message simple goes around the rod once! There's no encryption! Even rod lengths close to the message length won't do a reasonable job of encrypting. For example, given this message of length 29...
+    ```
+    "The boats launch at midnight."
+    ```
+    when encrypted with a rod length of 26 yields:
+    ```
+    "Thhte.  b o a t s   l a u n c h   a t   m i d n i g "
+    ```
+    We can still guess the meaning. A rod length of 5 is better:
+    ```
+    "Tolhmghaa ihetuadt sntn.b c i "
+    ```
 
 ## Example
 
-Suppose we have the plaintext message "IAMHURTVERYBADLYHELP" and a rod length of 4. The encryption process would look like this:
+Suppose we have the plaintext message "IAMHURTVERYBADLYHELP" and a rod length of 5. The encryption process would look like this:
 
 ```
-I A M H U R T V E R Y B A D L Y H E L P
+IAMHURTVERYBADLYHELP
 ```
 
-The ciphertext is then read off row by row: "IRYYATBHMVAEHEDLURLP".
+The plaintext message is wrapped around the rod, and then the ciphertext is read off row by row:
+
+```
+IRYYATBHMVAEHEDLURLP
+```
 
 To decrypt, we wrap the ciphertext around the rod with the same length and read off the plaintext diagonally:
 
-```
-I R Y Y A T B H M V A E H E D L U R L P
-```
+This gives us back the original plaintext message.
 
-This gives us the original plaintext message "IAMHURTVERYBADLYHELP".
+## Dependencies
 
-## Requirements
+This script requires Python 3.x, `click`, and the `math` module from the Python standard library.
 
-This script requires Python 3.x and the `math` module from the Python standard library.
+## Notes
 
-## Note
-
-The length of the plaintext message must be evenly divisible by the rod length. If not, the script will add spaces to the message to make it divisible.
+- The length of the plaintext message must be evenly divisible by the rod length. If not, the script will add spaces to the message to make it divisible.
+- The scytale cipher method is obviously not particularly secure since rods of various diameters could be employed to "brute force" a decryption. Since there is a practical limit to the diameter of a rod, brute force would require having a stock of reasonably sized rods. On the other hand, at the time in history when this method was used, having such a stock would likely involve state-level "hackers".

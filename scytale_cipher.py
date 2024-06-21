@@ -1,9 +1,11 @@
 """
     Filename: scytale_cipher.py
-     Version: 0.1
+     Version: 2.0
       Author: Richard E. Rawson
         Date: 2023-05-01
- Description:
+ Last update: 2024-06-21
+
+Description:
 scytale ("baton, cylinder", also σκύταλον skútalon) is a tool used to perform a transposition cipher, consisting of a cylinder with a strip of parchment wound around it on which is written a message.
 
 Suppose the rod allows one to write four letters around in a circle and five letters down the side of it. The plaintext could be: "I am hurt very badly help".
@@ -58,7 +60,7 @@ def cli(plaintext: str, rod: int) -> None:
         if p != 0:
             padding_length: int = rod - p
             plaintext += " " * padding_length
-            encrypt_str(plaintext, rod)
+        encrypt_str(plaintext, rod)
     else:
         decrypt_str(rod)
 
