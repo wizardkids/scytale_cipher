@@ -32,7 +32,7 @@ from icecream import ic
 
 VERSION = "2.0"
 
-@click.command(help="Encrypt/decrypt [PLAINTEXT] using a scytale cipher.", epilog="--rod is defined as the diameter of the rod, but practically speaking, it is the number of characters that can fit around the diameter of the rod. For this reason, the message length must be evenly divisible by --rod. If not, the message is padded with spaces.\n\nIf a value for --rod is non-default, that same value must be used for both encryption and decryption.")
+@click.command(help="Encrypt/decrypt [PLAINTEXT] using a scytale cipher.", epilog="--rod is defined as the diameter of the rod, but practically speaking, it is the number of characters that can fit around the diameter of the rod. For this reason, [PLAINTEXT] length must be evenly divisible by --rod. If not, [PLAINTEXT] is padded with spaces.\n\nIf a value for --rod is non-default, that same value must be used for both encryption and decryption.")
 @click.argument("plaintext", required=False)
 @click.option("-r", "--rod", type=int, default=5, show_default=True, help="Diameter of the rod")
 @click.version_option(version=VERSION)
